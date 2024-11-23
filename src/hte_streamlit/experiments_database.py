@@ -159,7 +159,16 @@ class ExperimentalDataset:
                     datasets_grp.attrs[key] = value
                 
                 print(f"Experiment {exp_name} added successfully.")
-    
+                
+    def list_experiments(self) -> List[str]:
+        """
+        List all experiments in the dataset
+        
+        Returns:
+            List[str]: A sorted list of experiment names
+        """
+        return sorted(self.experiments.keys())
+
     def print_experiments(self):
         """
         Print all experiments in the dataset in a formatted way

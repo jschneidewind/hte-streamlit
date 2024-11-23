@@ -81,7 +81,7 @@ def process_files(csv_files, overview_file, dataset):
 
 def main():
     st.title("Data Upload and Download")
-        
+       
     if st.session_state.experimental_dataset is not None:
     
         dataset = st.session_state.experimental_dataset
@@ -150,6 +150,43 @@ def main():
 
     else:
         st.info("Please upload a HDF5 file on the home page first.")
+
+       # Add explanation and guide
+    st.markdown("""
+    ## How to Use This Page
+    
+    This page allows you to upload new experimental data and update your dataset. Here's how to use it:
+    
+    ### Step 1: Prepare Your Files
+    - **Overview File (Excel)**: Contains metadata for all experiments including conditions and parameters
+    - **Data Files (CSV)**: Raw experimental data files, each containing measurements for one experiment
+    
+    ### Step 2: Upload Files
+    1. If you need to update experiment metadata:
+       - Upload a new overview Excel file in the "Overview File" section
+       - This will update metadata for all experiments in the dataset
+    
+    2. To add new experiments:
+       - Upload one or more CSV data files in the "CSV Files" section
+       - Files should follow the naming convention: `results_MRG-059-XX-N-M.csv`
+       - Multiple files can be uploaded simultaneously
+    
+    ### Step 3: Process and Save
+    1. Click "Process Files" to analyze the uploaded data
+       - Each file will be processed individually
+       - Progress will be shown for each file
+       - Success/failure messages will appear for each processed file
+    
+    2. Click "Save Updated Dataset" to download the new dataset
+       - This will create an updated HDF5 file containing all experiments
+       - The new file will include both existing and newly added experiments
+    
+    ### Data Tables
+    - **Analyzed Experiments**: Shows only experiments with completed analysis
+    - **Full Dataset Overview**: Shows all experiments in the dataset
+    
+    > **Note**: Make sure you have uploaded a dataset on the home page before trying to add new data.
+    """)
 
 if __name__ == "__main__":
     main()

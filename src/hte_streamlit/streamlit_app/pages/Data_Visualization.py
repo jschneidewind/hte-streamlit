@@ -172,6 +172,75 @@ if st.session_state.experimental_dataset is not None:
 
     st.dataframe(filtered_df, use_container_width=True)
 
+    st.header("Understanding Plot Types")
+    
+    st.markdown("""
+    ### Data Type Explanations
+    
+    #### Raw Data Types
+    - **Reaction (baseline corrected)**: 
+        - Shows the main reaction phase data after baseline correction
+        - Displayed as dots for each measurement point
+        - Y-axis shows oxygen concentration, corrected for baseline drift
+    
+    - **Full**: 
+        - Shows all raw data points including pre-reaction and post-reaction phases
+        - Includes the complete measurement without any corrections
+        - Useful for seeing the entire experimental timeline
+    
+    - **Full (baseline corrected)**:
+        - Complete dataset after baseline correction
+        - Shows how the baseline correction affects the entire measurement
+        - Includes pre-reaction, reaction, and post-reaction phases
+    
+    #### Fitted and Processed Data
+    - **Reaction Fit**: 
+        - Mathematical fit of the reaction phase using the specified kinetic model
+        - Shown as a solid line through the reaction data
+        - Used to determine reaction rates and kinetic parameters
+    
+    - **Baseline**: 
+        - Calculated baseline drift throughout the experiment
+        - Shows how the background signal changes over time
+        - Used to correct for instrumental drift and systematic errors
+    
+    - **LBC Fit (Logistic Baseline Correction)**:
+        - Combined fit of baseline and logistic transition
+        - Helps separate the reaction signal from background changes
+        - Shows the total fitted signal including baseline and reaction
+    
+    #### Rate Data
+    - **Rate (raw data)**: 
+        - First derivative of the raw measurement data
+        - Shows instantaneous reaction rates
+        - Can be noisy due to measurement uncertainties
+    
+    - **Rate (smoothed)**: 
+        - Smoothed version of the reaction rate
+        - Uses Savitzky-Golay filtering to reduce noise
+        - Provides clearer view of rate trends
+    
+    - **Rate (reaction fit)**: 
+        - Reaction rates calculated from the fitted model
+        - Smooth curve showing idealized reaction kinetics
+        - Used for comparing theoretical and experimental rates
+
+    ### Tips for Visualization
+    - Compare raw data with fitted curves to assess fit quality
+    - Use rate plots to identify reaction phases and maximum rates
+    - Combine multiple experiments to compare reproducibility
+    - Check baseline corrections to ensure proper data processing
+    
+    ### Common Use Cases
+    - **Quality Control**: Compare Full and Full (baseline corrected) to check data processing
+    - **Kinetic Analysis**: Use Reaction Fit and Rate plots together
+    - **Baseline Issues**: Check Baseline and LBC Fit when suspicious of drift
+    - **Rate Analysis**: Compare all three rate plots to validate rate determinations
+    """)
+
+
+
+
 else:
     st.info("Please upload a HDF5 file on the home page first.")
 

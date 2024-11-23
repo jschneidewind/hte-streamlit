@@ -29,6 +29,7 @@ dependencies = [
     "scipy",
     "h5py",
     "tables",
+    "openpyxl",
 ]
 dynamic = ["version"]
 
