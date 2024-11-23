@@ -36,10 +36,3 @@ venv.bak/
 # Operating System
 .DS_Store
 Thumbs.db
-
-# Project specific
-*.h5
-*.hdf5
-*.csv
-*.xlsx
-*.png
