@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/hte_streamlit/_version.py"
+
+[project]
+name = "hte_streamlit"
+authors = [
+    {name = "Jacob Schneidewind", email = "pyH2A.pypi@gmail.com"},
+]
+description = "High-throughput experimentation data analysis and visualization tool"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["high-throughput", "experimentation", "data-analysis", "streamlit"]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "streamlit",
+    "pandas",
+    "numpy",
+    "plotly",
+    "matplotlib",
+    "scipy",
+    "h5py",
+    "tables",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "isort",
+    "flake8",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/jschneidewind/hte-streamlit"
+"Bug Tracker" = "https://github.com/jschneidewind/hte-streamlit/issues"
