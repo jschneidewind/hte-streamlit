@@ -32,7 +32,8 @@ def analyze_single_file(file, directory, dataset, plotting = True, plot_baseline
                         plotting = plotting, plot_baseline = plot_baseline, ax = ax, fig = fig, 
                         return_full = True)
         
-        print(f'{file} analyzed, rate: {analysis_metadata['max_rate']}')
+        max_rate_print_out = analysis_metadata['max_rate']
+        print(f'{file} analyzed, rate: {max_rate_print_out}')
 
         experimental_metadata = get_experimental_metadata(experiment_name, dataset.overview_df)
 
