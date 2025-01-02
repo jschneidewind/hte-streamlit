@@ -8,6 +8,32 @@ def get_experiment_group(exp_name):
     return re.sub(r'-?\d+$', '', exp_name)
 
 def create_visualization(data, selected_outcome):
+    """
+    Creates a visualization of experimental outcomes using Plotly.
+    This function generates an interactive scatter plot where experiments are grouped 
+    and displayed with vertical lines representing the range of values within each group.
+    Each data point represents an individual experiment result, with hover information 
+    showing the experiment name and value.
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        DataFrame containing experimental data with at least the following columns:
+        - 'Experiment': Name/ID of each experiment
+        - Column matching selected_outcome: Values to be plotted
+    selected_outcome : str
+        Name of the column in data to be visualized
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        Interactive Plotly figure showing experiment results grouped by experiment type,
+        with scatter points for individual values and vertical lines showing the range
+        within each group.
+    Notes
+    -----
+    - Groups are determined by the get_experiment_group function (not shown)
+    - Error bars (vertical lines) are only displayed for groups with multiple data points
+    - Hover information includes experiment name and exact value
+    """
     # Group experiments
     data['group'] = data['Experiment'].apply(get_experiment_group)
     
@@ -116,7 +142,8 @@ if st.session_state.experimental_dataset is not None:
     with col5:
         selected_outcome = st.radio(
             'Select analysis outcome',  # Label
-            ['rate', 'max rate', 'max rate ydiff', 'rate constant']  # List of options
+            ['rate', 'max rate', 'max rate ydiff', 'rate constant'],  # List of options
+            key = 1
         )
 
     # Apply filters
@@ -136,6 +163,41 @@ if st.session_state.experimental_dataset is not None:
         st.warning('No data available for the selected filters.')
 
     st.dataframe(filtered_df, use_container_width=True)
+
+    # ---- Group analysis section ----
+
+    st.divider()
+    st.header("Group Analysis")
+
+    gcol1, gcol2 = st.columns(2)
+
+    with gcol1:
+        # Get unique experiment groups
+        df['group'] = df['Experiment'].apply(get_experiment_group)
+        unique_groups = sorted(df['group'].unique())
+        selected_groups = st.multiselect(
+            'Select Groups',
+            unique_groups,
+            default=list()
+        )
+
+    with gcol2:
+        selected_outcome_group = st.radio(
+            'Select analysis outcome',  # Label
+            ['rate', 'max rate', 'max rate ydiff', 'rate constant'], # List of options
+            key = 2  
+        )
+
+    group_mask = df['group'].isin(selected_groups)
+    group_filtered_df = df[group_mask]
+
+    if not group_filtered_df.empty:
+        group_fig = create_visualization(group_filtered_df, selected_outcome_group)
+        st.plotly_chart(group_fig)
+    else:
+        st.warning('No data available for the selected filters.')
+
+    st.dataframe(group_filtered_df, use_container_width=True)
 
 else:
     st.info("Please upload a HDF5 file on the home page first.")
