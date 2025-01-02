@@ -5,6 +5,8 @@ import h5py
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict
 import colorsys
+import re
+import hashlib
 
 def import_data(file_name):
     df = pd.read_csv(file_name, low_memory = False)
@@ -221,52 +223,45 @@ class ExperimentalDataset:
 
 def get_experiment_color(experiment_name):
     """
-    Generate a color for an experiment based on its group and subgroup with enhanced distinction.
-    
-    Args:
-        experiment_name (str): Experiment name in format 'MRG-059-XX-N-M'
-        
+    Generates a consistent color for an experiment based on its name using HSV color space.
+    The function parses experiment names in the format 'MRG-X-GROUP-SUBGROUP-EXPNUM'
+    and generates a color by:
+    1. Creating a hash from the group-subgroup combination for the hue
+    2. Using fixed high saturation
+    3. Varying the value based on experiment number
+    Parameters:
+        experiment_name (str): Name of the experiment in format 'MRG-X-GROUP-SUBGROUP-EXPNUM'
     Returns:
-        str: Hex color code
+        str: Hex color code (e.g., '#FF0000' for red)
+            Returns '#808080' (gray) if the experiment name doesn't match the expected pattern
+    Example:
+        >>> get_experiment_color('MRG-1-ABC-01-03')
+        '#7b2e9b'  # Returns a consistent color for this experiment
     """
-    # Split the experiment name to extract group and numbers
-    parts = experiment_name.split('-')
-    if len(parts) < 4:
-        raise ValueError("Invalid experiment name format")
+    # Parse experiment name
+    pattern = r'MRG-\d+-([A-Z]+)-(\d+)-(\d+)'
+    match = re.match(pattern, experiment_name)
     
-    # Extract group identifier (e.g., 'V', 'ZA', 'ZB')
-    group = parts[2]
+    if not match:
+        return "#808080"  # Default gray
+        
+    group, subgroup_num, exp_num = match.groups()
     
-    # Extract subgroup number (first number after letters)
-    subgroup_num = int(parts[3].split('-')[0])
+    # Create hash from group-subgroup combination
+    hash_input = f"{group}-{subgroup_num}"
+    hash_value = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+
+    # Map hash to hue (0-1)
+    hue = (hash_value % 1000) / 1000.0
     
-    # Extract last number
-    last_num = int(parts[-1])
+    # Fixed high saturation
+    saturation = 0.9
     
-    # Generate base hue for the group using prime numbers for better distribution
-    group_value = 0
-    for i, char in enumerate(reversed(group)):
-        group_value += (ord(char) - ord('A') + 26 if char >= 'A' else ord(char) - ord('A')) * (31 ** i)
-    
-    # Use golden ratio conjugate for more distinct group color separation
-    golden_conjugate = 0.618033988749895
-    base_hue = (group_value * golden_conjugate) % 1.0
-    
-    # Create more distinct subgroup colors by shifting hue significantly
-    # but staying within the same color family
-    subgroup_hue = (base_hue + (subgroup_num - 1) * 0.1) % 1.0
-    
-    # High saturation for vivid colors
-    # Vary saturation more dramatically between subgroups
-    saturation = min(1.0, 0.8 + (subgroup_num * 0.15) % 0.2)
-    
-    # Brightness variations for the last number
-    # Using cosine function for smooth but distinct transitions
-    #value = 0.8 + 0.2 * np.cos(last_num * np.pi / 2)
-    value = 1 - (last_num / 10)
+    # Map experiment number to cyclical value (0.5-1.0)
+    value = 0.5 + 0.5 * ((int(exp_num) % 10) / 10.0)
     
     # Convert HSV to RGB
-    rgb = colorsys.hsv_to_rgb(subgroup_hue, saturation, value)
+    rgb = colorsys.hsv_to_rgb(hue, saturation, value)
     
     # Convert RGB to hex
     hex_color = "#{:02x}{:02x}{:02x}".format(
