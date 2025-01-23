@@ -56,6 +56,9 @@ if st.session_state.experimental_dataset is not None:
         # Get experiment-specific color
         exp_color = getattr(exp_data.experiment_metadata, 'color', "#0ab5cc")  # Fallback to random color
         
+        hover_template = "<b>%{fullData.name}</b><br>" + "X: %{x}<br>" + "Y: %{y}<br>" +"<extra></extra>"
+
+
         # Plotting loop
         if "Reaction (baseline corrected)" in plot_types:
             # Dots for raw data
@@ -64,7 +67,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.data_reaction,
                 name=f"{exp_name} - Reaction (baseline corrected)",
                 mode='markers',
-                marker=dict(color=exp_color, size=5, opacity=0.7)
+                marker=dict(color=exp_color, size=5, opacity=0.7),
+                hovertemplate = hover_template,
+                hoverlabel=dict(font_color=exp_color),
             ))
         
         if "Reaction Fit" in plot_types:
@@ -74,7 +79,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.y_fit,
                 name=f"{exp_name} - Reaction Fit",
                 mode='lines',
-                line=dict(color=exp_color, width=3)
+                line=dict(color=exp_color, width=3),
+                hovertemplate = hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
         
         if "Baseline" in plot_types:
@@ -84,7 +91,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.baseline_y,
                 name=f"{exp_name} - Baseline",
                 mode='lines',
-                line=dict(color=exp_color, width=2, dash='dash')
+                line=dict(color=exp_color, width=2, dash='dash'),
+                hovertemplate = hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
         
         if "LBC Fit" in plot_types:
@@ -94,7 +103,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.lbc_fit_y,
                 name=f"{exp_name} - LBC Fit",
                 mode='lines',
-                line=dict(color=exp_color, width=2, dash='dashdot')
+                line=dict(color=exp_color, width=2, dash='dashdot'),
+                hovertemplate = hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
 
         if "Full (baseline corrected)" in plot_types:
@@ -104,7 +115,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.full_y_corrected,
                 name=f"{exp_name} - Full (baseline corrected)",
                 mode='markers',
-                marker=dict(color=exp_color, size=5, opacity=0.7)
+                marker=dict(color=exp_color, size=5, opacity=0.7),
+                hovertemplate = hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
 
         if "Full" in plot_types:
@@ -114,7 +127,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.data_full,
                 name=f"{exp_name} - Full",
                 mode='markers',
-                marker=dict(color=exp_color, size=5, opacity=0.7)
+                marker=dict(color=exp_color, size=5, opacity=0.7),
+                hovertemplate = hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
 
         if "Rate (raw data)" in plot_types:
@@ -124,7 +139,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.y_diff,
                 name=f"{exp_name} - Rate (raw data)",
                 mode='markers',
-                marker=dict(color=exp_color, size=5, opacity=0.7)
+                marker=dict(color=exp_color, size=5, opacity=0.7),
+                hovertemplate=hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
 
         if "Rate (smoothed)" in plot_types:
@@ -134,7 +151,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.y_diff_smoothed,
                 name=f"{exp_name} - Rate (smoothed)",
                 mode='lines',
-                line=dict(color=exp_color, width=1.5)
+                line=dict(color=exp_color, width=1.5),
+                hovertemplate=hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
         
         if "Rate (reaction fit)" in plot_types:
@@ -144,7 +163,9 @@ if st.session_state.experimental_dataset is not None:
                 y=exp_data.time_series_data.y_diff_fit,
                 name=f"{exp_name} - Rate (reaction fit)",
                 mode='lines',
-                line=dict(color=exp_color, width=1.5, dash='dashdot')
+                line=dict(color=exp_color, width=1.5, dash='dashdot'),
+                hovertemplate=hover_template,
+                hoverlabel=dict(font_color=exp_color)
             ))
     
     # Update layout with dark theme
@@ -152,10 +173,18 @@ if st.session_state.experimental_dataset is not None:
         title="HTE Data Visualization",
         xaxis_title="Time (s)",
         yaxis_title="O2 Concentration",
-        hovermode='x unified',
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='white')
+        font=dict(color='white'),
+        hoverlabel=dict(
+                    bgcolor="white",  # white background for hover label
+                    font_size=14,    # font size for hover label
+                    font_color='black'  # font color for hover label
+                ),
+        showlegend=True,
+        legend=dict(
+            itemclick="toggleothers",  # Click one trace to show only that one
+            itemdoubleclick="toggle"),
     )
 
     # Update axis colors
@@ -230,6 +259,8 @@ if st.session_state.experimental_dataset is not None:
     - Use rate plots to identify reaction phases and maximum rates
     - Combine multiple experiments to compare reproducibility
     - Check baseline corrections to ensure proper data processing
+    - Single click on a trace in the legend to show individual one
+    - Double click on anouther trace in the legend to add it to the view
     
     ### Common Use Cases
     - **Quality Control**: Compare Full and Full (baseline corrected) to check data processing
@@ -237,9 +268,6 @@ if st.session_state.experimental_dataset is not None:
     - **Baseline Issues**: Check Baseline and LBC Fit when suspicious of drift
     - **Rate Analysis**: Compare all three rate plots to validate rate determinations
     """)
-
-
-
 
 else:
     st.info("Please upload a HDF5 file on the home page first.")
