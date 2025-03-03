@@ -36,3 +36,9 @@ venv.bak/
 # Operating System
 .DS_Store
 Thumbs.db
+
+# Untracked
+Untracked/
+htmlcov/
+.coverage
+coverage.xml
