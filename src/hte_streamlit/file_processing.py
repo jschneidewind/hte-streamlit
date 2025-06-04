@@ -87,20 +87,20 @@ def analyze_files_multiprocessing(keywords, directory, dataset, plotting = True,
     return results
   
 def main():
-    keywords = ['V', 'X', 'Y', 'Z', 'ZA', 'ZB', 'ZC', 'ZE', 'ZF', 'ZG', 'ZH']
-    #keywords = ['ZE']
+    #keywords = ['V', 'X', 'Y', 'Z', 'ZA', 'ZB', 'ZC', 'ZE', 'ZF', 'ZG', 'ZH']
+    keywords = ['ZP-2-2']
 
     # experimental_dataset = ExperimentalDataset.load_from_hdf5('HTE_dataset.h5')
 
     experimental_dataset = ExperimentalDataset(overview_df=
-                                               import_overview_excel('/Users/jacob/Documents/Water_Splitting/HTE_Photocatalysis/photocat-hte/data_analysis/overview/HTE-overview_241024.xlsx'))
+                                               import_overview_excel('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/photocat-hte/data_analysis/overview/HTE-overview_250408.xlsx'))
 
     # analyze_single_file('results_MRG-059-ZC-3-3.csv', 'data_analysis', experimental_dataset)
 
-    analyze_files_multiprocessing(keywords, '/Users/jacob/Documents/Water_Splitting/HTE_Photocatalysis/photocat-hte/data_analysis', 
+    analyze_files_multiprocessing(keywords, '/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/photocat-hte/data_analysis', 
                                   dataset = experimental_dataset)
 
-    experimental_dataset.save_to_hdf5('241123_HTE_dataset_full.h5')
+    #experimental_dataset.save_to_hdf5('250408_HTE_dataset.h5')
     experimental_dataset.print_experiments()
 
 if __name__ == '__main__':

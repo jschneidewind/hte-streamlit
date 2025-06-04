@@ -125,6 +125,17 @@ class ExperimentalDataset:
             
             self.insert_experiment_results_in_df(experiment_data)
 
+    def update_reaction_data(self):
+
+        ### Making this a permanent change to the dataset
+
+        for experiment_name, experiment_data in self.experiments.items():
+            experiment_data.time_series_data.data_reaction_molar = experiment_data.time_series_data.data_reaction * 1e-6
+            experiment_data.time_series_data.y_diff_molar = np.diff(experiment_data.time_series_data.data_reaction_molar)
+
+            #experiment_data.time_series_data.time_reaction = experiment_data.time_series_data.time_reaction[:50] * 1e-6
+            
+
     def save_to_hdf5(self, filename: str):
         """Save all experiments to a single HDF5 file"""
 

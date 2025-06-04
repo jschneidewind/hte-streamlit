@@ -236,11 +236,14 @@ if st.session_state.experimental_dataset is not None:
                     is_selected = group in st.session_state.selected_groups
 
                     if len(deviations) == 0:
+                        # Reference experiments
                         checkbox_name = f"{group} (n = {total})"
                     elif len(deviations) == 1:
+                        # Experiments where one parameter has been varied
                         parameter_value = row[deviations[0]]
                         checkbox_name = f"{group} ({parameter_value}, n = {total})"
                     else:
+                        # Experiments where multiple parameters have been varied
                         checkbox_name = f"{group} ("
                         for deviation in deviations:
                             parameter_value = row[deviation]

@@ -54,9 +54,11 @@ def convert_letters_to_numbers(string):
         output.append(value)
 
     return np.asarray(output)
+    #return output
 
 
 def correct_idx(idx, shapes):
+
     values = []
 
     for counter, i in enumerate(shapes):
@@ -105,7 +107,10 @@ def ode_string_interpreter_complete(string):
 
         non_reactant_components[counter] = non_reactant_component
 
+
+    
     return np.asarray(reactions), non_reactant_components
+    #return reactions, non_reactant_components
 
 
 def consumption_production(
@@ -310,3 +315,17 @@ def ode_fitting(
     residual = p.fun
 
     return p_ode, matrix, initial_state, residual
+
+if __name__ == "__main__":
+
+    data = np.arange(0, 100, 1) * 3
+    time = np.arange(0, 100, 1)
+
+    reaction_string = ["A + C > B, k1",
+                       'B > C + E, k2',
+                       'C > D, k3']
+
+    p_ode, matrix, initial_state, residual = ode_fitting(data, time, reaction_string, idx = 1)
+
+
+    
