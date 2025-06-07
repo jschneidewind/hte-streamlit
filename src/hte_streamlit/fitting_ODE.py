@@ -183,7 +183,7 @@ def visualize_optimization_results(model: Fitting_Model) -> Figure:
 
     error, model_results = objective_function(model.result.x, model, return_full = True)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
@@ -194,15 +194,15 @@ def visualize_optimization_results(model: Fitting_Model) -> Figure:
         #for species, data in model.data_to_be_fitted.items():
         for species, data in experimental_data.items():
 
-            ax.scatter(data['x'], data['y'], color = color)
+            ax[0].scatter(data['x'], data['y'], color = color)
 
             
-            ax.plot(data['x'], model_results[experiment.experiment_metadata.experiment_name][species], color = color)
+            ax[0].plot(data['x'], model_results[experiment.experiment_metadata.experiment_name][species], color = color)
             # Then add a single legend entry for both
-            ax.plot([], [], color=color, marker='o', linestyle='-', 
+            ax[0].plot([], [], color=color, marker='o', linestyle='-', 
                     label=f'{species} - {experiment.experiment_metadata.experiment_name}')
     
-    ax.legend()
+    ax[0].legend()
 
     return fig
 
