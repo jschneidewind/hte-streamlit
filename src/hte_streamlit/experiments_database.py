@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from pathlib import Path
 import h5py
 from dataclasses import dataclass, asdict, field
 from typing import List, Dict
@@ -46,7 +45,7 @@ class ExperimentMetadata:
     pH: float
     buffer_used: int 
     annotations: str = ""
-    color: str = "#cc0a7c"
+    color: str = "#ce1480"
 
 @dataclass
 class AnalysisMetadata:
@@ -94,7 +93,82 @@ class ExperimentalData:
 
 @dataclass
 class ExperimentalDataset:
-    """Container for all experimental data types and metadata for multiple experiments"""
+    """
+    Container for managing multiple photocatalysis experiments with comprehensive data handling.
+    
+    This class provides a centralized data structure for storing, managing, and analyzing
+    experimental data from photocatalytic water splitting experiments. It handles time series
+    data, experimental metadata, analysis results, and provides serialization capabilities
+    for data persistence and sharing.
+    
+    Attributes
+    ----------
+    experiments : Dict[str, ExperimentalData]
+        Dictionary mapping experiment names to their corresponding ExperimentalData objects.
+        Each experiment contains time series data, metadata, and analysis results.
+    overview_df : pd.DataFrame
+        Summary DataFrame containing key experimental parameters and results for all
+        experiments. Includes columns for experiment names, conditions, and calculated
+        metrics like maximum rates and rate constants.
+    
+    Methods
+    -------
+    add_experiment(name, experimental_data)
+        Add a new experiment to the dataset and update the overview DataFrame
+    insert_experiment_results_in_df(experimental_data)
+        Update the overview DataFrame with analysis results from an experiment
+    update_metadata(file_name)
+        Refresh experimental metadata from an external Excel file
+    update_reaction_data()
+        Calculate and add derived photochemical parameters to all experiments
+    save_to_hdf5(filename)
+        Serialize all experimental data to an HDF5 file for storage
+    load_from_hdf5(filename)
+        Class method to deserialize experimental data from an HDF5 file
+    list_experiments()
+        Return a sorted list of all experiment names in the dataset
+    print_experiments()
+        Display a formatted list of all experiments in the dataset
+    
+    Notes
+    -----
+    The class automatically maintains consistency between individual experiment data
+    and the overview DataFrame. When experiments are added or updated, relevant
+    analysis results are automatically synchronized.
+    
+    The update_reaction_data() method adds several calculated fields:
+    - Molar concentrations (data_reaction_molar, y_diff_molar)
+    - Micro molar concentrations (ru_concentration_uM, oxidant_concentration_uM)
+    - Photochemical parameters (photon_flux)
+    
+    HDF5 serialization preserves all data types and structures, making it suitable
+    for long-term storage and data sharing between different analysis environments.
+    
+    Examples
+    --------
+    >>> # Create a new dataset
+    >>> dataset = ExperimentalDataset()
+    >>> 
+    >>> # Add experiments
+    >>> dataset.add_experiment('MRG-1-ABC-01-01', experimental_data)
+    >>> 
+    >>> # Update metadata from Excel file
+    >>> dataset.update_metadata('experimental_conditions.xlsx')
+    >>> 
+    >>> # Calculate derived parameters
+    >>> dataset.update_reaction_data()
+    >>> 
+    >>> # Save to file
+    >>> dataset.save_to_hdf5('photocatalysis_experiments.h5')
+    >>> 
+    >>> # Load from file
+    >>> loaded_dataset = ExperimentalDataset.load_from_hdf5('photocatalysis_experiments.h5')
+    >>> 
+    >>> # List all experiments
+    >>> experiment_names = dataset.list_experiments()
+    >>> dataset.print_experiments()
+    """
+
     experiments: Dict[str, 'ExperimentalData'] = field(default_factory=dict)
     overview_df: pd.DataFrame = field(default_factory=lambda: pd.DataFrame())
 
@@ -124,6 +198,19 @@ class ExperimentalDataset:
                                             color = get_experiment_color(new_experimental_metadata['experiment_name']))
             
             self.insert_experiment_results_in_df(experiment_data)
+
+    def update_reaction_data(self):
+
+        ENERGY_PER_PHOTON_J = 4.22648E-19 # J
+        M2_TO_CM2 = 10000
+
+        for experiment_name, experiment_data in self.experiments.items():
+            experiment_data.time_series_data.data_reaction_molar = experiment_data.time_series_data.data_reaction * 1e-6
+            experiment_data.time_series_data.y_diff_molar = np.diff(experiment_data.time_series_data.data_reaction_molar) / np.diff(experiment_data.time_series_data.time_reaction)
+
+            experiment_data.experiment_metadata.ru_concentration_uM = experiment_data.experiment_metadata.ru_concentration * 1e6
+            experiment_data.experiment_metadata.oxidant_concentration_uM = experiment_data.experiment_metadata.oxidant_concentration * 1e6 
+            experiment_data.experiment_metadata.photon_flux = (experiment_data.experiment_metadata.power_output / M2_TO_CM2) / ENERGY_PER_PHOTON_J
 
     def save_to_hdf5(self, filename: str):
         """Save all experiments to a single HDF5 file"""
@@ -226,16 +313,25 @@ def get_experiment_color(experiment_name):
     Generates a consistent color for an experiment based on its name using HSV color space.
     The function parses experiment names in the format 'MRG-X-GROUP-SUBGROUP-EXPNUM'
     and generates a color by:
+
     1. Creating a hash from the group-subgroup combination for the hue
     2. Using fixed high saturation
     3. Varying the value based on experiment number
-    Parameters:
-        experiment_name (str): Name of the experiment in format 'MRG-X-GROUP-SUBGROUP-EXPNUM'
-    Returns:
-        str: Hex color code (e.g., '#FF0000' for red)
-            Returns '#808080' (gray) if the experiment name doesn't match the expected pattern
-    Example:
-        >>> get_experiment_color('MRG-1-ABC-01-03')
+
+    Parameters
+    ----------
+    experiment_name : str
+            Name of the experiment in format 'MRG-X-GROUP-SUBGROUP-EXPNUM'
+
+    Returns
+    -------
+    str
+        Hex color code (e.g., '#FF0000' for red)
+        Returns '#808080' (gray) if the experiment name doesn't match the expected pattern
+
+    Example
+    -------
+    >>> get_experiment_color('MRG-1-ABC-01-03')
         '#7b2e9b'  # Returns a consistent color for this experiment
     """
     # Parse experiment name

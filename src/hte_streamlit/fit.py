@@ -2,7 +2,6 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.linalg import inv
-from scipy.optimize import least_squares
 from scipy.signal import savgol_filter
 import pandas as pd
 
@@ -147,7 +146,6 @@ def preprocess_data_LBC(data_df, offset, plotting, filename = None):
     rxn_end = find_nearest(time, rxn_subset["duration"].values[-1])[0]
 
     return data_subset, data_corrected, rxn_start, rxn_end, baseline, lbc_fit, x_values, y_corrected, time, o2_data
-
 
 def plotting_fit_results(time_reaction, data_reaction, y_diff, y_fit, y_diff_smoothed, 
                          ax = None, fig = None, label = None, color = None):
