@@ -5,7 +5,6 @@ from types import SimpleNamespace
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from matplotlib.figure import Figure
 from matplotlib import rcParams
 rcParams['font.family'] = 'sans-serif'
@@ -15,8 +14,6 @@ rcParams['mathtext.fontset'] = 'custom'
 rcParams['mathtext.rm'] = 'Arial'
 rcParams['mathtext.it'] = 'Arial:italic'
 rcParams['mathtext.bf'] = 'Arial:bold'
-
-import pprint as pp
 
 from hte_streamlit.experiments_database import ExperimentalDataset
 from hte_streamlit.reaction_ODE import calculate_excitations_per_second_competing
@@ -208,7 +205,6 @@ def plot_max_rate_data(df_averaged,
         #ax.legend(title='Base Experiment', bbox_to_anchor=(1.02, 1.01), loc='upper left')
 
     return fig, ax
-
 
 def plot_model_fit(model: Fitting_Model,
                    model_results: dict,
@@ -529,14 +525,6 @@ class KineticPlotter:
                 ax.plot(times, solution[:, i], label=spec, 
                         color = color_map[spec])
         
-
-        # for i, spec in enumerate(species):
-        #     if spec not in exclude_species:
-        #         ax.plot(times, solution[:, i], label=spec, 
-        #                 color = color_map[spec])
-
-
-
         ax.set_xlabel('Time / s')
         ax.set_ylabel(r'Concentration /  $\mathrm{\mu M}$')
 
@@ -560,16 +548,13 @@ def plot_max_rates_parameters(Ru_model,
     Irradiation_model.plot_max_rates(ax = ax[1,0], fig = fig, sweep_results = False)
     pH_model.plot_max_rates(ax = ax[1,1], fig = fig, sweep_results = None)
 
-
-    #bbox_props = dict(boxstyle="square,pad=0.1", facecolor='white', edgecolor='black', linewidth=1)
-
     ax[0, 0].text(-0.35, 1.04, 'A', transform=ax[0, 0].transAxes, fontsize=22, fontweight='bold')
     ax[0, 1].text(-0.35, 1.04, 'B', transform=ax[0, 1].transAxes, fontsize=22, fontweight='bold')
     ax[1, 0].text(-0.35, 1.04, 'C', transform=ax[1, 0].transAxes, fontsize=22, fontweight='bold')
     ax[1, 1].text(-0.35, 1.04, 'D', transform=ax[1, 1].transAxes, fontsize=22, fontweight='bold')
     ax[0, 2].text(-0.35, 1.04, 'E', transform=ax[0, 2].transAxes, fontsize=22, fontweight='bold')      
 
-    img = mpimg.imread('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/Ru_Reaction_Scheme.png')
+    img = mpimg.imread('Figures/Ru_Reaction_Scheme.png')
     imagebox = OffsetImage(img, zoom=0.145) 
     ab = AnnotationBbox(imagebox, (0.85, -0.2), frameon=False, 
                         xycoords=ax[0,2].transAxes)
@@ -647,23 +632,6 @@ if __name__ == '__main__':
     viridis = plt.cm.viridis
     colors = [viridis(i) for i in np.linspace(0, 0.85, 4)]
 
-    # model = Fitting_Model(['[RuII] > [RuII-ex], k1 ; hv, sigma_RuII',
-    #                         '[RuII-ex] + [S2O8] > [RuIII] + [SO4], k7',
-    #                         '[RuIII] > [H2O2] + [RuII], k2 ; hv, sigma_RuIII',
-    #                         '2 [RuIII] > [Ru-Dimer], k3',
-    #                         '2 [RuIII] + [Ru-Dimer] > 2 [Ru-Dimer], k4',
-    #                         '[H2O2] > [O2], k5',
-    #                         '[RuIII] > [Inactive], k6'])
-    
-    ### Correct absorption
-    # model = Fitting_Model(['[RuII] > [RuII-ex], k1 ; hv_functionA',
-    #                         '[RuII-ex] + [S2O8] > [RuIII] + [SO4], k7',
-    #                         '[RuIII] > [H2O2] + [RuII], k2 ; hv_function_B',
-    #                         '2 [RuIII] > [Ru-Dimer], k3',
-    #                         '2 [RuIII] + [Ru-Dimer] > 2 [Ru-Dimer], k4',
-    #                         '[H2O2] > [O2], k5',
-    #                         '[RuIII] > [Inactive], k6'])
-
     model = Fitting_Model(['[RuII] > [RuII-ex], k1 ; hv_functionA',
                             '[RuII-ex] > [RuII], k8',
                             '[RuII-ex] + [S2O8] > [RuIII] + [SO4], k7',
@@ -737,31 +705,6 @@ if __name__ == '__main__':
     model.loss_function = square_loss_ydiff
 
     model.result = SimpleNamespace()
-    # model.result.x = np.array([9.644e-01,
-    #                             9.983e-01,
-    #                             6.406e-03,
-    #                             2.428e-03,
-    #                             2.293e-02,
-    #                             4.493e-03,
-    #                             9.092e+01])
-    ### Correct absorption
-    # model.result.x = np.array([8.037e-01,
-    #                            9.894e-01,
-    #                            6.578e-03,
-    #                            2.223e-03,
-    #                            2.350e-02,
-    #                            5.004e-03,
-    #                            8.685e+02])
-    ### Relaxation of [RuII-ex]
-    # model.result.x = np.array([9.568e-01,
-    #                            9.638e-01,
-    #                            8.715e-03,
-    #                            2.769e-03,
-    #                            2.937e-02,
-    #                            3.670e-03,
-    #                            5.994e+01])
-
-    ### Relaxation of [RuII-ex], weight 1 on extreme [Ru] conc
     model.result.x = np.array([9.995e-01,
                         9.886e-01,
                         7.407e-03,
@@ -769,9 +712,6 @@ if __name__ == '__main__':
                         2.739e-02,
                         4.762e-03,
                         5.918e+01])
-
-
-
 
     KineticPlotter.set_shared_data(
         df_averaged = df_averaged,
@@ -807,25 +747,14 @@ if __name__ == '__main__':
                                 axis_label = 'pH', 
                                 color = colors[3])
                              
-
-
-    #fig_rate = plot_max_rates_parameters(Ru_model, OX_model, Irradiation_model, pH_model)
+    fig_rate = plot_max_rates_parameters(Ru_model, OX_model, Irradiation_model, pH_model)
     #fig_rate.savefig('Figures/kinetic_max_rates.pdf', dpi = 500)
 
-
     fig_fit = plot_kinetic_fit_parameters(Ru_model, OX_model, Irradiation_model)
-    fig_fit.savefig('Figures/kinetic_fit.png', dpi = 500)
+    #fig_fit.savefig('Figures/kinetic_fit.png', dpi = 500)
 
-    #fig_time = plot_time_series(Ru_model, reference_experiment)
+    fig_time = plot_time_series(Ru_model, reference_experiment)
     #fig_time.savefig('Figures/kinetic_time_series.pdf', dpi = 500)
-
-            
+         
     plt.show()
     
-
-
-
-
-
-
-

@@ -16,11 +16,9 @@ from hte_streamlit.experiments_database import ExperimentalDataset, import_data
 from hte_streamlit.fit import align_time
 
 
-
-
 def main():
-    data_df = import_data('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/Raw_Data/results_MRG-059-ZN-12-2.csv')
-    dataset = ExperimentalDataset.load_from_hdf5('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/250616_HTE.h5')
+    data_df = import_data('data/Raw_Data/results_MRG-059-ZN-12-2.csv')
+    dataset = ExperimentalDataset.load_from_hdf5('data/250616_HTE.h5')
 
     align_time(data_df)
 
@@ -34,15 +32,13 @@ def main():
     reaction_start = data_subset[data_subset["status"] == "REACTION"]["duration"].values[0]
     reaction_end = data_subset[data_subset["status"] == "POSTREACTION-BASELINE"]["duration"].values[0]
 
-
     time = data_subset["duration"].values
     o2_data = data_subset["uM_1"].values
-
 
     exp = dataset.experiments['MRG-059-ZN-12-2']
     max_rate_idx = np.argmax(exp.time_series_data.y_diff_smoothed)
     
-
+    # Create a figure with 3 subplots
     fig, ax = plt.subplots(nrows = 3, ncols = 1, figsize = (4, 8))
     fig.subplots_adjust(left = 0.2, right = 0.93, top = 0.97, bottom = 0.08, hspace=0.6)
 
@@ -56,7 +52,6 @@ def main():
 
     tick_locations = [0, 1000, 3000]
     ax[0].set_xticks(tick_locations)
-    #ax[0].legend()
 
     xlabel = ax[0].xaxis.get_label()
     xlabel.set_position((0.2, 0))
@@ -87,14 +82,11 @@ def main():
     )
     ax[0].add_patch(con2)
 
-
     ax[1].plot(exp.time_series_data.time_reaction, exp.time_series_data.data_reaction, 'o', markersize = 3, label = 'Concentration data', color = 'grey')
     ax[1].plot(exp.time_series_data.time_reaction, exp.time_series_data.y_fit, label = 'Kinetic fit', color = 'orange', linewidth = 1.5)
     ax[1].set_xlabel('Time / s')
     ax[1].set_ylabel(r'Oxygen / $\mathrm{\mu M(O_2)}$')
     ax[1].legend()
-
-
 
     ax[2].plot(exp.time_series_data.x_diff, exp.time_series_data.y_diff, 'o', markersize = 3, label = 'Rate data', color = 'grey')
     ax[2].plot(exp.time_series_data.x_diff, exp.time_series_data.y_diff_smoothed, label = 'Smoothing', color = 'black')
@@ -103,7 +95,6 @@ def main():
     ax[2].set_xlabel('Time / s')
     ax[2].set_ylabel(r'Rate / $\mathrm{\mu M(O_2) \, s^{-1}}$')
     ax[2].legend()
-
 
     fig.text(x=0.45, y=0.675, s='1. Baseline correction', 
          fontsize=12, fontweight='bold', 
@@ -140,7 +131,7 @@ def main():
     ax[0].text(0.77, 0.75, 'III',transform=ax[0].transAxes,fontsize=18, fontweight='bold')
     ax[0].text(0.915, 0.75, 'IV',transform=ax[0].transAxes,fontsize=18, fontweight='bold')
 
-    fig.savefig('Figures/HTE_Data_Processing.png', dpi = 500)
+    #fig.savefig('Figures/HTE_Data_Processing.png', dpi = 500)
 
     plt.show()
 
