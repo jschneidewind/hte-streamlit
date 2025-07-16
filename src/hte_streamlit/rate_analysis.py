@@ -364,24 +364,24 @@ def plot_2D_model_fit(model_X_axis, other_models, other_models_values, drop_ZA =
     ax.legend(bbox_to_anchor=(1.02, 1.01), loc='upper left')
 
 
-def main():
+# def main():
     
-    df_cleaned = import_data('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/photocat-hte/data_analysis/overview/HTE-overview_240815_corrected.xlsx',
-                                '/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/photocat-hte/data_analysis/analyzed_csv/output.csv')
-    df_averaged = average_reproductions(df_cleaned)
+#     df_cleaned = import_data('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/photocat-hte/data_analysis/overview/HTE-overview_240815_corrected.xlsx',
+#                                 '/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/photocat-hte/data_analysis/analyzed_csv/output.csv')
+#     df_averaged = average_reproductions(df_cleaned)
 
 
-    Ru_model = Model(df_averaged, ['c(Na2S2O8) [M]', 'pH [-]'], [0.006, 9.6], 
-                     'c([Ru(bpy(3]Cl2) [M]',
-                     skewed_gaussian_model, plotting = False, save_fig=False)
+#     Ru_model = Model(df_averaged, ['c(Na2S2O8) [M]', 'pH [-]'], [0.006, 9.6], 
+#                      'c([Ru(bpy(3]Cl2) [M]',
+#                      skewed_gaussian_model, plotting = False, save_fig=False)
     
-    Ox_model = Model(df_averaged, ['c([Ru(bpy(3]Cl2) [M]', 'pH [-]'], [0.00001, 9.6], 'c(Na2S2O8) [M]', 
-                    skewed_gaussian_model, plotting = False, save_fig=False)
+#     Ox_model = Model(df_averaged, ['c([Ru(bpy(3]Cl2) [M]', 'pH [-]'], [0.00001, 9.6], 'c(Na2S2O8) [M]', 
+#                     skewed_gaussian_model, plotting = False, save_fig=False)
     
-    pH_model = Model(df_averaged, ['c([Ru(bpy(3]Cl2) [M]', 'c(Na2S2O8) [M]'], [0.00001, 0.06], 'pH [-]', 
-                    poly, drop_ZA = True, plotting = False, save_fig=False)
+#     pH_model = Model(df_averaged, ['c([Ru(bpy(3]Cl2) [M]', 'c(Na2S2O8) [M]'], [0.00001, 0.06], 'pH [-]', 
+#                     poly, drop_ZA = True, plotting = False, save_fig=False)
     
-    plot_3D_model_fit(Ru_model, Ox_model, [pH_model], [9.6])
+#     plot_3D_model_fit(Ru_model, Ox_model, [pH_model], [9.6])
     #plot_3D_model_fit(Ru_model, pH_model, [Ox_model], [0.006])
     #plot_3D_model_fit(pH_model, Ox_model, [Ru_model], [0.00001])
 
@@ -390,20 +390,26 @@ def main():
     #plot_2D_model_fit(Ox_model, [Ru_model, pH_model], [0.00001, 9.6])
 
 
+def kinetic_function(Ru_conc, Ox_conc, k1, k2):
+
+    rate = (k1 * Ru_conc * Ox_conc) / (1 + k2 * Ru_conc**2)
+
+    return rate
+
     
 
 def new_dataset():
 
-    dataset = ExperimentalDataset.load_from_hdf5('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/HTE-overview_250204.h5')
+    dataset = ExperimentalDataset.load_from_hdf5('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/250608_HTE.h5')
     df = dataset.overview_df
 
     df['c([Ru(bpy(3]Cl2) [M]'] *= 1e6 # convert to uM
     df['c(Na2S2O8) [M]'] *= 1e3 # convert to mM
-    df['Power output [W/m^2]'] *= 1e2 # correcting values for right W/m2
+    #df['Power output [W/m^2]'] *= 1e2 # correcting values for right W/m2
 
     df_averaged = average_reproductions(df)
 
-    OX_experiments = ['ZN-10', 'ZN-9', 'ZN-8', 'ZO-1', 'ZN-21']
+    OX_experiments = ['ZN-10', 'ZN-9', 'ZN-8', 'ZO-1', 'ZO-9']
     Irradiation_experiments = ['ZO-1', 'ZO-3', 'ZN-14', 'ZN-13', 'ZN-11']
     Ru_experiments = ['ZO-1', 'ZO-8', 'ZO-2', 'ZN-7', 'ZN-4', 'ZN-3', 'ZN-2', 'ZN-1']
     pH_experiments = ['ZO-1', 'ZO-7', 'ZO-6', 'ZO-5', 'ZO-4']
@@ -420,6 +426,18 @@ def new_dataset():
                      skewed_gaussian_model, plotting = True, save_fig=False,
                      ax = ax[0,0], fig = fig,
                      axis_label = r'$\mathrm{[Ru(bpy)_3]Cl_2}$ / $\mu\mathrm{M}$', color = colors[0])
+
+    k1 = 0.00005
+    k2 = 0.03
+
+    Ox_conc = 6000
+    Ru_conc = np.linspace(0, 100, 100)
+
+    # Ru conc needs to be >1 to see effect ??? 
+
+    # rate = kinetic_function(Ru_conc, Ox_conc, k1, k2)
+    # ax[0,0].plot(Ru_conc, rate, color = colors[0], label = 'Kinetic model')
+
 
     OX_model = Model(df_averaged, OX_experiments, 'c(Na2S2O8) [M]', 
                      exponential_model, plotting = True, save_fig=False,

@@ -261,10 +261,10 @@ def fit_data(
 
     y_fit_selection = y_fit[:,idx_for_fitting]
 
-    y_diff_fit = np.diff(y_fit_selection)
+    y_diff_fit = np.diff(y_fit_selection) / np.diff(time_reaction)
     max_rate = np.amax(y_diff_fit)
 
-    y_diff = np.diff(data_reaction)
+    y_diff = np.diff(data_reaction) / np.diff(time_reaction)
     y_diff_smoothed = savgol_filter(y_diff, int(len(y_diff)/savgol_window_factor), savgol_poly_order)
 
     max_rate_ydiff = np.amax(y_diff_smoothed)

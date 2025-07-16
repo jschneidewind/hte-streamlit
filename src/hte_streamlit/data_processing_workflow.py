@@ -19,8 +19,8 @@ from hte_streamlit.fit import align_time
 
 
 def main():
-    data_df = import_data('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/Raw_Data/results_MRG-059-ZN-12B.csv')
-    dataset = ExperimentalDataset.load_from_hdf5('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/HTE-overview_250204.h5')
+    data_df = import_data('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/Raw_Data/results_MRG-059-ZN-12-2.csv')
+    dataset = ExperimentalDataset.load_from_hdf5('/Users/jacob/Documents/Water_Splitting/Projects/HTE_Photocatalysis/HTE_Streamlit_App/data/250616_HTE.h5')
 
     align_time(data_df)
 
@@ -52,7 +52,7 @@ def main():
     ax[0].axvline(x=reaction_end, color='black', linestyle='--')
     ax[0].set_xlim(time.min(), time.max())
     ax[0].set_xlabel('Time / s')
-    ax[0].set_ylabel('Oxygen / $µM(O_{2}$)')
+    ax[0].set_ylabel(r'Oxygen / $\mathrm{\mu M(O_2)}$')
 
     tick_locations = [0, 1000, 3000]
     ax[0].set_xticks(tick_locations)
@@ -61,7 +61,7 @@ def main():
     xlabel = ax[0].xaxis.get_label()
     xlabel.set_position((0.2, 0))
 
-        # Get the data limits from the x-axis
+    # Get the data limits from the x-axis
     x_min, x_max = ax[0].get_xlim()
 
     # Convert data coordinate to axes fraction (0-1 range)
@@ -89,22 +89,19 @@ def main():
 
 
     ax[1].plot(exp.time_series_data.time_reaction, exp.time_series_data.data_reaction, 'o', markersize = 3, label = 'Concentration data', color = 'grey')
-    ax[1].plot(exp.time_series_data.time_reaction, exp.time_series_data.y_fit, '--', label = 'Kinetic fit', color = 'orange', linewidth = 1.5)
+    ax[1].plot(exp.time_series_data.time_reaction, exp.time_series_data.y_fit, label = 'Kinetic fit', color = 'orange', linewidth = 1.5)
     ax[1].set_xlabel('Time / s')
-    ax[1].set_ylabel('Oxygen / $µM(O_{2}$)')
+    ax[1].set_ylabel(r'Oxygen / $\mathrm{\mu M(O_2)}$')
     ax[1].legend()
 
 
-    # correct_y_diff = np.diff(exp.time_series_data.data_reaction) / np.diff(exp.time_series_data.time_reaction)
-    # ax[2].plot(exp.time_series_data.x_diff, correct_y_diff, 'o-', markersize = 2)
 
-
-
-    ax[2].plot(exp.time_series_data.x_diff, exp.time_series_data.y_diff, 'o', markersize = 3, label = 'Rate data', color = 'darkgreen')
+    ax[2].plot(exp.time_series_data.x_diff, exp.time_series_data.y_diff, 'o', markersize = 3, label = 'Rate data', color = 'grey')
     ax[2].plot(exp.time_series_data.x_diff, exp.time_series_data.y_diff_smoothed, label = 'Smoothing', color = 'black')
     ax[2].plot(exp.time_series_data.x_diff[max_rate_idx], exp.time_series_data.y_diff_smoothed[max_rate_idx], 'o', markersize = 10, label = 'Max. rate', color = 'darkred')
+    ax[2].plot(exp.time_series_data.x_diff, exp.time_series_data.y_diff_fit, label = 'Kinetic fit', color = 'orange', linewidth = 1.5)
     ax[2].set_xlabel('Time / s')
-    ax[2].set_ylabel(r'Rate / $\mu M(O_2) \, s^{-1}$')
+    ax[2].set_ylabel(r'Rate / $\mathrm{\mu M(O_2) \, s^{-1}}$')
     ax[2].legend()
 
 
@@ -143,7 +140,7 @@ def main():
     ax[0].text(0.77, 0.75, 'III',transform=ax[0].transAxes,fontsize=18, fontweight='bold')
     ax[0].text(0.915, 0.75, 'IV',transform=ax[0].transAxes,fontsize=18, fontweight='bold')
 
-    fig.savefig('HTE_Data_Processing.pdf', dpi = 500)
+    fig.savefig('Figures/HTE_Data_Processing.png', dpi = 500)
 
     plt.show()
 

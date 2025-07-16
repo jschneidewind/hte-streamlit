@@ -46,7 +46,7 @@ class ExperimentMetadata:
     pH: float
     buffer_used: int 
     annotations: str = ""
-    color: str = "#cc0a7c"
+    color: str = "#ce1480"
 
 @dataclass
 class AnalysisMetadata:
@@ -127,14 +127,23 @@ class ExperimentalDataset:
 
     def update_reaction_data(self):
 
+        ENERGY_PER_PHOTON_J = 4.22648E-19 # J
+        M2_TO_CM2 = 10000
+
         ### Making this a permanent change to the dataset
 
         for experiment_name, experiment_data in self.experiments.items():
             experiment_data.time_series_data.data_reaction_molar = experiment_data.time_series_data.data_reaction * 1e-6
-            experiment_data.time_series_data.y_diff_molar = np.diff(experiment_data.time_series_data.data_reaction_molar)
+            experiment_data.time_series_data.y_diff_molar = np.diff(experiment_data.time_series_data.data_reaction_molar) / np.diff(experiment_data.time_series_data.time_reaction)
 
-            #experiment_data.time_series_data.time_reaction = experiment_data.time_series_data.time_reaction[:50] * 1e-6
-            
+            experiment_data.experiment_metadata.ru_concentration_uM = experiment_data.experiment_metadata.ru_concentration * 1e6
+            experiment_data.experiment_metadata.oxidant_concentration_uM = experiment_data.experiment_metadata.oxidant_concentration * 1e6 
+            experiment_data.experiment_metadata.extinction_coefficient = 1./991 # toy extinction coefficient so that extinction coefficient * power_output = 1
+
+            experiment_data.experiment_metadata.photon_flux = (experiment_data.experiment_metadata.power_output / M2_TO_CM2) / ENERGY_PER_PHOTON_J
+
+            experiment_data.experiment_metadata.sigma_RuII = 3.25066E-17 # 8500 M^-1 cm^-1 * 3.82431E-21
+            experiment_data.experiment_metadata.sigma_RuIII = 2.06513E-18 # 540 M^-1 cm^-1 * 3.82431E-21
 
     def save_to_hdf5(self, filename: str):
         """Save all experiments to a single HDF5 file"""
