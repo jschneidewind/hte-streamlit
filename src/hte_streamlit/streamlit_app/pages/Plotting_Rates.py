@@ -19,7 +19,7 @@ def select_reference_conditions(df):
         selected_intensity = st.selectbox(
             'Irradiation intensity [W/m^2]',
             intensities,
-            index=list(intensities).index(6.637) if 6.637 in intensities else 0
+            index=list(intensities).index(991) if 991 in intensities else 0
         )
     
     with acol2:
